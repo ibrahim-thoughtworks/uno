@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "strict": true
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80
+  }
+}
