@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { startGame, playCard, drawCard, callUno, getState } from './api'
 
-type Card = { id: string; color: string; value: number }
+type Card = { id: string; color: string; value: number | string }
 
 export default function App() {
   const [state, setState] = useState<any>(null)
@@ -101,8 +101,15 @@ export default function App() {
 function renderCard(c: Card | undefined) {
   if (!c) return <div className="card back" />
   return (
-    <div className={`card ${c.color}`}>{c.value}</div>
+    <div className={`card ${c.color}`}>{displayValue(c.value)}</div>
   )
+}
+
+function displayValue(v: any) {
+  if (v === 'plus2') return '+2'
+  if (v === 'reverse') return '↺'
+  if (v === 'skip') return '⏭'
+  return String(v)
 }
 
 function PlayerArea({ position = 'bottom', player, hideHand, active, onPlay, topCard }: any) {
@@ -126,7 +133,7 @@ function PlayerArea({ position = 'bottom', player, hideHand, active, onPlay, top
                 '--card-index': String(hand.length - i),
               } as React.CSSProperties}
             >
-              {!hideHand ? c.value : <div className="back-label">UNO</div>}
+              {!hideHand ? displayValue(c.value) : <div className="back-label">UNO</div>}
             </div>
           )
         })}

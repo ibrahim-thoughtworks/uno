@@ -15,6 +15,13 @@ export function generateDeck(): Card[] {
       for (let value = 0; value <= 9; value++) {
         deck.push({ id: uid(`${color}-${value}-`), color, value });
       }
+      // add two of each action card per color
+      deck.push({ id: uid(`${color}-plus2-`), color, value: 'plus2' })
+      deck.push({ id: uid(`${color}-plus2-`), color, value: 'plus2' })
+      deck.push({ id: uid(`${color}-reverse-`), color, value: 'reverse' })
+      deck.push({ id: uid(`${color}-reverse-`), color, value: 'reverse' })
+      deck.push({ id: uid(`${color}-skip-`), color, value: 'skip' })
+      deck.push({ id: uid(`${color}-skip-`), color, value: 'skip' })
     }
   }
   return deck;
@@ -35,8 +42,9 @@ export function getState(): GameState | null {
   return state ? JSON.parse(JSON.stringify(state)) : null;
 }
 
-function nextIndex(i: number, players: Player[]) {
-  return (i + 1) % players.length;
+function nextIndex(i: number, players: Player[], dir = 1) {
+  const n = players.length;
+  return ((i + dir) % n + n) % n;
 }
 
 export function startGame(names?: string[]): GameState {
@@ -70,6 +78,7 @@ export function startGame(names?: string[]): GameState {
     hasCalledUno: {},
     gameStatus: 'playing',
     winnerId: null,
+    direction: 1,
   };
 
   // initialize UNO flags
@@ -106,9 +115,31 @@ export function playCard(playerId: string, cardId: string): GameState {
     s.winnerId = player.id;
     return getState()!;
   }
+  // Apply action cards and advance turn according to card effects
+  const dir = s.direction || 1;
+  if (card.value === 'reverse') {
+    // flip direction, next player becomes previous in original order
+    s.direction = -dir;
+    s.currentPlayerIndex = nextIndex(s.currentPlayerIndex, s.players, s.direction);
+  } else if (card.value === 'skip') {
+    // skip next player: advance two steps
+    s.currentPlayerIndex = nextIndex(nextIndex(s.currentPlayerIndex, s.players, dir), s.players, dir);
+  } else if (card.value === 'plus2') {
+    // next player draws two and is skipped
+    const targetIdx = nextIndex(s.currentPlayerIndex, s.players, dir);
+    replenishIfNeeded(s);
+    for (let k = 0; k < 2; k++) {
+      const drawn = s.commonDeck.pop();
+      if (drawn) s.players[targetIdx].hand.push(drawn);
+      else break;
+    }
+    // move to player after the one who drew
+    s.currentPlayerIndex = nextIndex(targetIdx, s.players, dir);
+  } else {
+    // normal card: advance one step
+    s.currentPlayerIndex = nextIndex(s.currentPlayerIndex, s.players, dir);
+  }
 
-  // advance turn
-  s.currentPlayerIndex = nextIndex(s.currentPlayerIndex, s.players);
   // reset UNO flag for the new current player
   const newPid = s.players[s.currentPlayerIndex].id;
   s.hasCalledUno[newPid] = false;
@@ -139,8 +170,8 @@ export function drawCard(playerId: string): GameState {
   const card = s.commonDeck.pop();
   if (card) player.hand.push(card);
 
-  // advance turn
-  s.currentPlayerIndex = nextIndex(s.currentPlayerIndex, s.players);
+  // advance turn according to current direction
+  s.currentPlayerIndex = nextIndex(s.currentPlayerIndex, s.players, s.direction || 1);
   const newPid = s.players[s.currentPlayerIndex].id;
   s.hasCalledUno[newPid] = false;
 

@@ -3,7 +3,8 @@ export type Color = 'red' | 'blue' | 'green' | 'yellow';
 export interface Card {
   id: string;
   color: Color;
-  value: number; // 0-9
+  // numbers 0-9 or action strings: 'plus2', 'reverse', 'skip'
+  value: number | 'plus2' | 'reverse' | 'skip';
 }
 
 export interface Player {
@@ -22,4 +23,6 @@ export interface GameState {
   hasCalledUno: Record<string, boolean>;
   gameStatus: GameStatus;
   winnerId?: string | null;
+  // 1 for forward, -1 for reverse
+  direction: number;
 }
