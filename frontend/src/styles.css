@@ -1,4 +1,4 @@
-:root{--card-w:100px;--card-h:150px}
+:root{--card-w:100px;--card-h:150px;--side-card-w:140px;--side-card-h:210px}
 body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:16px;margin:0;background:radial-gradient(circle at center,#2d5016 0%,#2d5016 70%,#0f2a05 100%);min-height:100vh}
 .setup{padding:32px}
 .setup input{display:block;margin:8px 0;padding:8px}
@@ -13,27 +13,36 @@ body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:16px;margin:0
 .player-area.bottom{flex-direction:column;align-items:center}
 .hand{display:flex;flex-wrap:wrap;gap:16px}
 .player-area.left .hand,
-.player-area.right .hand{flex-direction:column;align-items:center}
+.player-area.right .hand{flex-direction:column;align-items:center;gap:0}
 .player-area.left .player-name,
 .player-area.right .player-name{writing-mode:vertical-rl;margin:0 10px;}
 .player-area.left .player-name{transform:rotate(180deg)}
 .player-area.right .player-name{transform:scaleX(-1)}
 .player-area.bottom .hand{flex-direction:row;align-items:flex-end}
 .player-area.left .hand .card,
-.player-area.right .hand .card{width:var(--card-h);height:var(--card-w)}
+.player-area.right .hand .card{width:var(--side-card-h);height:var(--side-card-w)}
 .player-area.bottom .hand .card{width:var(--card-w);height:var(--card-h)}
 .player-area.bottom .hand .card:not(:first-child){margin-left:-28px}
 .player-area.left .hand .card:not(:first-child),
 .player-area.right .hand .card:not(:first-child){margin-top:-28px}
-.card{width:var(--card-w);height:var(--card-h);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;transition:transform 0.25s,opacity 0.2s}
-.card{position:relative;border:3px solid #000;opacity:1;box-shadow:0 6px 18px rgba(0,0,0,0.18)}
-.card.red{background:#d9534f}
-.card.blue{background:#0275d8}
-.card.green{background:#5cb85c}
-.card.yellow{background:#f0ad4e;color:#222}
-.card.back{background:#333}
+.card-wrapper{position:relative;display:flex;align-items:center;justify-content:center}
+.player-area.left .hand .card-wrapper,
+.player-area.right .hand .card-wrapper{width:var(--side-card-h);height:var(--side-card-w)}
+.player-area.bottom .hand .card-wrapper{width:var(--card-w);height:var(--card-h)}
+.player-area.bottom .hand .card-wrapper:not(:first-child){margin-left:-28px}
+.player-area.left .hand .card-wrapper:not(:first-child),
+.player-area.right .hand .card-wrapper:not(:first-child){margin-top:-28px}
+.card-image{width:100%;height:100%;object-fit:contain;border-radius:10px;transform-origin:center center}
+.player-area.left .hand .card-image{transform:rotate(-90deg)}
+.player-area.right .hand .card-image{transform:rotate(90deg)}
+.player-area.left .hand .card-wrapper:hover .card-image{transform:rotate(-90deg) scale(1.05)}
+.player-area.right .hand .card-wrapper:hover .card-image{transform:rotate(90deg) scale(1.05)}
+.hand .card-wrapper:hover .card-image{transform:scale(1.05)}
+.card{width:var(--card-w);height:var(--card-h);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;transition:transform 0.25s,opacity 0.2s;position:relative;border:3px solid #000;opacity:1;box-shadow:0 6px 18px rgba(0,0,0,0.18)}
 .deck{width:var(--card-w);height:var(--card-h);background:#222;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;margin:8px}
 .center-stack{display:flex;gap:16px;align-items:center}
+.discard{width:var(--card-w);height:var(--card-h);border-radius:10px;overflow:hidden}
+.discard .card-image{width:100%;height:100%;object-fit:cover}
 .discard .card{transform:translateY(0)}
 .player-area.active{box-shadow:0 0 18px 6px rgba(0,150,255,0.18);padding:10px;border-radius:12px}
 .controls{display:flex;align-items:center}
@@ -44,9 +53,10 @@ body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;padding:16px;margin:0
 .modal p{margin:0 0 22px;color:#555;line-height:1.5}
 .modal button{background:#333;color:#fff;border:none;padding:12px 22px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.18)}
 
-.hand .card{cursor:pointer}
-.hand .card:hover{transform:scale(1.05)}
-.hand .card{z-index:var(--card-index)}
+.hand .card-wrapper{cursor:pointer}
+.hand .card-wrapper:hover .card-image{transform:scale(1.05)}
+.hand .card-wrapper{z-index:var(--card-index)}
+.card.back{background:#333;border-radius:10px;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 .back-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:800;color:#ffd54f;background:transparent}
 .controls button, .center-controls button{background:#ffca28;border:none;padding:12px 20px;border-radius:12px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.15);cursor:pointer}
 .left-column .player-area{margin-left:10px}
